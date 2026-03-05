@@ -6,10 +6,12 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS } from '../constants/colors';
+import { useSubscription } from '../context/SubscriptionContext';
 
 const FEATURES = [
   { emoji: '🔔', title: 'Price alerts', desc: 'Get notified when prices drop below your threshold' },
@@ -27,12 +29,47 @@ const PLANS = [
 
 export default function ProScreen({ navigation }) {
   const [selectedPlan, setSelectedPlan] = useState('yearly');
+  const [purchasing, setPurchasing] = useState(false);
+  const { isPro, offerings, purchasePlan, restorePurchases } = useSubscription();
 
-  const handleSubscribe = () => {
+  // If already pro, close automatically
+  React.useEffect(() => {
+    if (isPro) {
+      Alert.alert('You\'re already Pro!', 'All features are unlocked.', [
+        { text: 'Great!', onPress: () => navigation.goBack() },
+      ]);
+    }
+  }, [isPro]);
+
+  const getPackage = () => {
+    if (!offerings?.current) return null;
+    if (selectedPlan === 'yearly') return offerings.current.annual;
+    return offerings.current.monthly;
+  };
+
+  const handleSubscribe = async () => {
+    const pkg = getPackage();
+    if (!pkg) {
+      Alert.alert('Not available', 'Please try again later.');
+      return;
+    }
+    setPurchasing(true);
+    const { success, error } = await purchasePlan(pkg);
+    setPurchasing(false);
+    if (success) {
+      Alert.alert('Welcome to Pro!', 'All features are now unlocked.', [
+        { text: 'Let\'s go!', onPress: () => navigation.goBack() },
+      ]);
+    } else if (error) {
+      Alert.alert('Purchase failed', error);
+    }
+  };
+
+  const handleRestore = async () => {
+    const restored = await restorePurchases();
     Alert.alert(
-      'Coming soon',
-      'Payment integration via Google Play will be added before launch.',
-      [{ text: 'OK' }]
+      restored ? 'Restored!' : 'Nothing to restore',
+      restored ? 'Your Pro subscription is active.' : 'No previous purchases found.'
     );
   };
 
@@ -96,14 +133,18 @@ export default function ProScreen({ navigation }) {
         </View>
 
         {/* CTA */}
-        <TouchableOpacity style={styles.ctaBtn} onPress={handleSubscribe}>
+        <TouchableOpacity style={styles.ctaBtn} onPress={handleSubscribe} disabled={purchasing}>
           <LinearGradient
             colors={[COLORS.proGold, '#d97706']}
             style={styles.ctaGrad}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           >
-            <Text style={styles.ctaText}>Start free 7-day trial</Text>
+            {purchasing ? (
+              <ActivityIndicator color="#000" />
+            ) : (
+              <Text style={styles.ctaText}>Start free 7-day trial</Text>
+            )}
           </LinearGradient>
         </TouchableOpacity>
 
@@ -120,7 +161,7 @@ export default function ProScreen({ navigation }) {
             <Text style={styles.link}>Terms of Use</Text>
           </TouchableOpacity>
           <Text style={styles.linkDot}>·</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleRestore}>
             <Text style={styles.link}>Restore purchase</Text>
           </TouchableOpacity>
         </View>

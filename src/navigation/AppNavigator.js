@@ -7,6 +7,7 @@ import { COLORS } from '../constants/colors';
 import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ProScreen from '../screens/ProScreen';
+import HistoryScreen from '../screens/HistoryScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -39,6 +40,14 @@ function Tabs() {
         options={{
           tabBarIcon: ({ focused }) => <TabIcon emoji="⚡" focused={focused} />,
           tabBarLabel: 'Prices',
+        }}
+      />
+      <Tab.Screen
+        name="History"
+        component={HistoryScreen}
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon emoji="📊" focused={focused} />,
+          tabBarLabel: 'History',
         }}
       />
       <Tab.Screen

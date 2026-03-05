@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../constants/colors';
+import { enablePriceWidget, disablePriceWidget } from '../services/priceWidget';
 
 const THRESHOLD_OPTIONS = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0];
 
@@ -19,6 +20,7 @@ export default function SettingsScreen({ navigation }) {
   const [alertsEnabled, setAlertsEnabled] = useState(false);
   const [threshold, setThreshold] = useState(1.5);
   const [currency, setCurrency] = useState('DKK');
+  const [widgetEnabled, setWidgetEnabled] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -33,6 +35,7 @@ export default function SettingsScreen({ navigation }) {
         setAlertsEnabled(s.alertsEnabled || false);
         setThreshold(s.threshold || 1.5);
         setCurrency(s.currency || 'DKK');
+        setWidgetEnabled(s.widgetEnabled || false);
       }
     } catch (_) {}
   };
@@ -65,6 +68,13 @@ export default function SettingsScreen({ navigation }) {
   const handleCurrency = (val) => {
     setCurrency(val);
     saveSettings({ currency: val });
+  };
+
+  const handleWidgetToggle = async (val) => {
+    setWidgetEnabled(val);
+    saveSettings({ widgetEnabled: val });
+    if (val) await enablePriceWidget();
+    else await disablePriceWidget();
   };
 
   return (
@@ -147,6 +157,23 @@ export default function SettingsScreen({ navigation }) {
               </View>
             </>
           )}
+        </View>
+
+        {/* Live widget */}
+        <Text style={styles.sectionLabel}>Notification widget · Pro</Text>
+        <View style={styles.card}>
+          <View style={styles.switchRow}>
+            <View>
+              <Text style={styles.switchLabel}>Live price in notification bar</Text>
+              <Text style={styles.switchDesc}>Shows current price as a persistent notification</Text>
+            </View>
+            <Switch
+              value={widgetEnabled}
+              onValueChange={handleWidgetToggle}
+              trackColor={{ false: COLORS.cardBorder, true: COLORS.accent + '88' }}
+              thumbColor={widgetEnabled ? COLORS.accent : COLORS.textMuted}
+            />
+          </View>
         </View>
 
         {/* Pro upsell */}
