@@ -1,6 +1,6 @@
 export const PRIVACY_POLICY = `
 PRIVATLIVSPOLITIK / PRIVACY POLICY
-Strøm App
+Elpilot App
 Sidst opdateret / Last updated: March 2026
 
 ---
@@ -8,7 +8,7 @@ Sidst opdateret / Last updated: March 2026
 DANSK
 
 1. Hvem er dataansvarlig?
-Strøm-appen er udviklet og drives af Zubeyr Abdi (i det følgende "vi" eller "os"), med adresse i Danmark.
+Elpilot-appen er udviklet og drives af Zubeyr Abdi (i det følgende "vi" eller "os"), med adresse i Danmark.
 Kontakt: zuabd22@student.sdu.dk
 
 2. Hvilke data indsamler vi?
@@ -62,7 +62,7 @@ Spørgsmål? Kontakt os på: zuabd22@student.sdu.dk
 ENGLISH
 
 1. Who is responsible for your data?
-The Strøm app is developed and operated by Zubeyr Abdi ("we" or "us"), based in Denmark.
+The Elpilot app is developed and operated by Zubeyr Abdi ("we" or "us"), based in Denmark.
 Contact: zuabd22@student.sdu.dk
 
 2. What data do we collect?

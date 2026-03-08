@@ -60,7 +60,7 @@ export default function HomeScreen({ navigation }) {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.appName}>Strøm</Text>
+            <Text style={styles.appName}>Elpilot</Text>
             <Text style={styles.date}>{format(new Date(), 'EEEE, d MMMM')}</Text>
           </View>
           <TouchableOpacity

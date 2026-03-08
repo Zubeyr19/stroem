@@ -87,7 +87,7 @@ export default function ProScreen({ navigation }) {
           style={styles.headerGrad}
         >
           <Text style={styles.crown}>⚡</Text>
-          <Text style={styles.title}>Strøm Pro</Text>
+          <Text style={styles.title}>Elpilot Pro</Text>
           <Text style={styles.subtitle}>
             Know exactly when to use your appliances.{'\n'}Save money every single day.
           </Text>

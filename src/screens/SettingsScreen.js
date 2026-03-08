@@ -233,7 +233,7 @@ export default function SettingsScreen({ navigation }) {
         <View style={styles.card}>
           <View style={styles.aboutRow}>
             <Text style={styles.aboutLabel}>App</Text>
-            <Text style={styles.aboutValue}>Strøm</Text>
+            <Text style={styles.aboutValue}>Elpilot</Text>
           </View>
           <View style={styles.divider} />
           <View style={styles.aboutRow}>
