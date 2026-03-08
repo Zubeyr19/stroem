@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../constants/colors';
 import { enablePriceWidget, disablePriceWidget } from '../services/priceWidget';
+import { GRID_OPERATORS } from '../constants/gridOperators';
 
 const THRESHOLD_OPTIONS = [0.5, 1.0, 1.5, 2.0, 2.5, 3.0];
 
@@ -21,6 +22,7 @@ export default function SettingsScreen({ navigation }) {
   const [threshold, setThreshold] = useState(1.5);
   const [currency, setCurrency] = useState('DKK');
   const [widgetEnabled, setWidgetEnabled] = useState(false);
+  const [gridOperatorId, setGridOperatorId] = useState(null);
 
   useEffect(() => {
     loadSettings();
@@ -36,6 +38,7 @@ export default function SettingsScreen({ navigation }) {
         setThreshold(s.threshold || 1.5);
         setCurrency(s.currency || 'DKK');
         setWidgetEnabled(s.widgetEnabled || false);
+        setGridOperatorId(s.gridOperatorId || null);
       }
     } catch (_) {}
   };
@@ -70,6 +73,11 @@ export default function SettingsScreen({ navigation }) {
     saveSettings({ currency: val });
   };
 
+  const handleGridOperator = (id) => {
+    setGridOperatorId(id);
+    saveSettings({ gridOperatorId: id });
+  };
+
   const handleWidgetToggle = async (val) => {
     setWidgetEnabled(val);
     saveSettings({ widgetEnabled: val });
@@ -101,6 +109,41 @@ export default function SettingsScreen({ navigation }) {
               </TouchableOpacity>
             ))}
           </View>
+        </View>
+
+        {/* Grid operator */}
+        <Text style={styles.sectionLabel}>Grid operator (netselskab)</Text>
+        <View style={styles.card}>
+          <Text style={styles.hint}>
+            Select your grid operator to see the real price you pay — including network tariffs, system charges and VAT.
+          </Text>
+          <TouchableOpacity
+            style={[styles.operatorBtn, !gridOperatorId && styles.operatorBtnActive]}
+            onPress={() => handleGridOperator(null)}
+          >
+            <Text style={[styles.operatorName, !gridOperatorId && styles.operatorNameActive]}>
+              Spot price only (no operator)
+            </Text>
+          </TouchableOpacity>
+          {GRID_OPERATORS.map((op) => (
+            <TouchableOpacity
+              key={op.id}
+              style={[styles.operatorBtn, gridOperatorId === op.id && styles.operatorBtnActive]}
+              onPress={() => handleGridOperator(op.id)}
+            >
+              <View style={styles.operatorRow}>
+                <View>
+                  <Text style={[styles.operatorName, gridOperatorId === op.id && styles.operatorNameActive]}>
+                    {op.name}
+                  </Text>
+                  <Text style={styles.operatorRegion}>{op.region} · {op.area}</Text>
+                </View>
+                {gridOperatorId === op.id && (
+                  <Text style={styles.checkmark}>✓</Text>
+                )}
+              </View>
+            </TouchableOpacity>
+          ))}
         </View>
 
         {/* Currency */}
@@ -282,4 +325,23 @@ const styles = StyleSheet.create({
   aboutRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 2 },
   aboutLabel: { color: COLORS.textMuted, fontSize: 13 },
   aboutValue: { color: COLORS.text, fontSize: 13, fontWeight: '500' },
+
+  operatorBtn: {
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    marginTop: 6,
+  },
+  operatorBtnActive: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.primary + '15',
+    paddingHorizontal: 10,
+  },
+  operatorRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  operatorName: { color: COLORS.textSecondary, fontWeight: '600', fontSize: 14 },
+  operatorNameActive: { color: COLORS.primary },
+  operatorRegion: { color: COLORS.textMuted, fontSize: 12, marginTop: 2 },
+  checkmark: { color: COLORS.primary, fontSize: 16, fontWeight: '700' },
 });

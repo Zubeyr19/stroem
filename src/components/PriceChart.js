@@ -13,8 +13,9 @@ export default function PriceChart({ prices, cheapestHours = [] }) {
     [cheapestHours]
   );
 
-  const min = useMemo(() => Math.min(...prices.map((p) => p.priceDKK)), [prices]);
-  const max = useMemo(() => Math.max(...prices.map((p) => p.priceDKK)), [prices]);
+  const priceKey = prices[0]?.truePriceDKK != null ? 'truePriceDKK' : 'priceDKK';
+  const min = useMemo(() => Math.min(...prices.map((p) => p[priceKey])), [prices, priceKey]);
+  const max = useMemo(() => Math.max(...prices.map((p) => p[priceKey])), [prices, priceKey]);
   const currentHour = new Date().getHours();
 
   if (!prices || prices.length === 0) return null;
@@ -23,9 +24,10 @@ export default function PriceChart({ prices, cheapestHours = [] }) {
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scroll}>
       <View style={styles.container}>
         {prices.map((item) => {
+          const displayVal = item[priceKey];
           const range = max - min || 1;
-          const barHeight = Math.max(8, ((item.priceDKK - min) / range) * CHART_HEIGHT);
-          const color = getPriceColor(item.priceDKK, min, max);
+          const barHeight = Math.max(8, ((displayVal - min) / range) * CHART_HEIGHT);
+          const color = getPriceColor(displayVal, min, max);
           const isCheap = cheapestSet.has(item.hourLabel);
           const isCurrent = item.hour === currentHour;
 
@@ -34,7 +36,7 @@ export default function PriceChart({ prices, cheapestHours = [] }) {
               {isCheap && <Text style={styles.star}>★</Text>}
               <View style={styles.barContainer}>
                 <Text style={[styles.price, { color }]}>
-                  {item.priceDKK.toFixed(2)}
+                  {displayVal.toFixed(2)}
                 </Text>
                 <View
                   style={[

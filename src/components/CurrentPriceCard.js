@@ -11,9 +11,13 @@ export default function CurrentPriceCard({ prices }) {
 
   if (!current) return null;
 
-  const min = Math.min(...prices.map((p) => p.priceDKK));
-  const max = Math.max(...prices.map((p) => p.priceDKK));
-  const color = getPriceColor(current.priceDKK, min, max);
+  const hasTruePrice = current.truePriceDKK != null;
+  const displayPrice = hasTruePrice ? current.truePriceDKK : current.priceDKK;
+  const nextDisplay = next ? (hasTruePrice ? next.truePriceDKK : next.priceDKK) : null;
+
+  const min = Math.min(...prices.map((p) => hasTruePrice ? p.truePriceDKK : p.priceDKK));
+  const max = Math.max(...prices.map((p) => hasTruePrice ? p.truePriceDKK : p.priceDKK));
+  const color = getPriceColor(displayPrice, min, max);
 
   const levelText =
     color === COLORS.primary ? 'Cheap' : color === COLORS.warning ? 'Medium' : 'Expensive';
@@ -27,22 +31,25 @@ export default function CurrentPriceCard({ prices }) {
         <View>
           <Text style={styles.label}>Right now</Text>
           <Text style={[styles.price, { color }]}>
-            {current.priceDKK.toFixed(2)}{' '}
+            {displayPrice.toFixed(2)}{' '}
             <Text style={styles.unit}>kr/kWh</Text>
           </Text>
+          {hasTruePrice && (
+            <Text style={styles.spotLabel}>Spot: {current.priceDKK.toFixed(2)} kr</Text>
+          )}
           <View style={[styles.badge, { backgroundColor: color + '22', borderColor: color }]}>
             <Text style={[styles.badgeText, { color }]}>{levelText}</Text>
           </View>
         </View>
 
-        {next && (
+        {next && nextDisplay != null && (
           <View style={styles.nextCol}>
             <Text style={styles.label}>Next hour</Text>
-            <Text style={[styles.nextPrice, { color: getPriceColor(next.priceDKK, min, max) }]}>
-              {next.priceDKK.toFixed(2)} kr
+            <Text style={[styles.nextPrice, { color: getPriceColor(nextDisplay, min, max) }]}>
+              {nextDisplay.toFixed(2)} kr
             </Text>
             <Text style={styles.trend}>
-              {next.priceDKK > current.priceDKK ? '↑ Going up' : '↓ Going down'}
+              {nextDisplay > displayPrice ? '↑ Going up' : '↓ Going down'}
             </Text>
           </View>
         )}
@@ -78,6 +85,12 @@ const styles = StyleSheet.create({
   unit: {
     fontSize: 16,
     fontWeight: '400',
+  },
+  spotLabel: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+    marginTop: 2,
+    marginBottom: 4,
   },
   badge: {
     marginTop: 8,

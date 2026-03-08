@@ -15,13 +15,31 @@ import CurrentPriceCard from '../components/CurrentPriceCard';
 import BestHoursCard from '../components/BestHoursCard';
 import PriceChart from '../components/PriceChart';
 import { COLORS } from '../constants/colors';
+import { GRID_OPERATORS } from '../constants/gridOperators';
 import { format } from 'date-fns';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function HomeScreen({ navigation }) {
   const [priceArea, setPriceArea] = useState('DK1');
   const [showTomorrow, setShowTomorrow] = useState(false);
-  const { todayPrices, tomorrowPrices, cheapestHours, loading, error, refresh, lastUpdated } =
-    usePrices(priceArea);
+  const [operatorGln, setOperatorGln] = useState(null);
+  const [operatorName, setOperatorName] = useState(null);
+
+  // Load saved operator on mount
+  React.useEffect(() => {
+    AsyncStorage.getItem('user_settings').then((raw) => {
+      if (!raw) return;
+      const s = JSON.parse(raw);
+      if (s.priceArea) setPriceArea(s.priceArea);
+      if (s.gridOperatorId) {
+        const op = GRID_OPERATORS.find((o) => o.id === s.gridOperatorId);
+        if (op) { setOperatorGln(op.gln); setOperatorName(op.name); }
+      }
+    }).catch(() => {});
+  }, []);
+
+  const { todayPrices, tomorrowPrices, cheapestHours, loading, error, refresh, lastUpdated, showTruePrice } =
+    usePrices(priceArea, operatorGln);
 
   const displayPrices = showTomorrow ? tomorrowPrices : todayPrices;
 
@@ -67,6 +85,24 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* Price mode indicator */}
+        {showTruePrice ? (
+          <View style={styles.priceModeBadge}>
+            <Text style={styles.priceModeText}>
+              Real price incl. VAT · {operatorName}
+            </Text>
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={styles.priceModeBadgeAlt}
+            onPress={() => navigation.navigate('Settings')}
+          >
+            <Text style={styles.priceModeTextAlt}>
+              Spot price only — set your netselskab in Settings for real price
+            </Text>
+          </TouchableOpacity>
+        )}
 
         {loading && !displayPrices.length ? (
           <View style={styles.loader}>
@@ -185,6 +221,26 @@ const styles = StyleSheet.create({
   },
   areaBtnText: { color: COLORS.textMuted, fontWeight: '600', fontSize: 13 },
   areaBtnTextActive: { color: COLORS.primary },
+
+  priceModeBadge: {
+    backgroundColor: COLORS.primary + '18',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginBottom: 12,
+    alignSelf: 'flex-start',
+  },
+  priceModeText: { color: COLORS.primary, fontSize: 12, fontWeight: '600' },
+  priceModeBadgeAlt: {
+    backgroundColor: COLORS.card,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.cardBorder,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginBottom: 12,
+  },
+  priceModeTextAlt: { color: COLORS.textMuted, fontSize: 11 },
 
   loader: { alignItems: 'center', marginTop: 60, gap: 12 },
   loadingText: { color: COLORS.textMuted, fontSize: 14 },
