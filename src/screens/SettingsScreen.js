@@ -250,6 +250,14 @@ export default function SettingsScreen({ navigation }) {
             <Text style={styles.aboutLabel}>Prices update</Text>
             <Text style={styles.aboutValue}>Every 30 minutes</Text>
           </View>
+          <View style={styles.divider} />
+          <TouchableOpacity
+            style={styles.aboutRow}
+            onPress={() => navigation.navigate('Privacy')}
+          >
+            <Text style={styles.aboutLabel}>Privacy Policy</Text>
+            <Text style={[styles.aboutValue, { color: COLORS.primary }]}>View →</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>

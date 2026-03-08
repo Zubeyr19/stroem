@@ -8,6 +8,7 @@ import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ProScreen from '../screens/ProScreen';
 import HistoryScreen from '../screens/HistoryScreen';
+import PrivacyScreen from '../screens/PrivacyScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -71,6 +72,16 @@ export default function AppNavigator() {
           name="Pro"
           component={ProScreen}
           options={{ presentation: 'modal' }}
+        />
+        <Stack.Screen
+          name="Privacy"
+          component={PrivacyScreen}
+          options={{
+            headerShown: true,
+            title: 'Privacy Policy',
+            headerStyle: { backgroundColor: COLORS.background },
+            headerTintColor: COLORS.text,
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>
